@@ -99,10 +99,19 @@ position into its own error format rather than print proctree's.
 - Lines starting with `#` (after indentation) are comments.
 - pids must be unique across the whole tree.
 
+## Testing
+
+The test suite uses only the standard library `unittest` module and runs
+straight from a checkout, no install required:
+
+```
+python -m unittest discover -s tests
+```
+
 ## Status
 
 Early skeleton. The parser, `Process`/`render`, and error formatting work
-and are covered by the README examples above; no test suite or CLI yet.
+and are covered by a test suite; no serializer or CLI yet.
 
 ## License
 
