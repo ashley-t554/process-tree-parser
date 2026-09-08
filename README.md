@@ -59,6 +59,25 @@ print(render(roots))
 └─ 120 cron
 ```
 
+`serialize` goes the other way, turning a forest of `Process` objects back
+into the same text notation `parse` reads. It's round-trip safe for tree
+shape (pids, names, nesting), though re-parsing the output will renumber
+`line` to match the new text rather than the original source:
+
+```python
+from proctree import parse, serialize
+
+roots = parse(text)
+print(serialize(roots))
+```
+
+```
+1 init
+  100 sshd
+    142 bash
+  120 cron
+```
+
 ## Error messages
 
 The point of this library is that a malformed fixture should tell you
@@ -110,8 +129,9 @@ python -m unittest discover -s tests
 
 ## Status
 
-Early skeleton. The parser, `Process`/`render`, and error formatting work
-and are covered by a test suite; no serializer or CLI yet.
+Early skeleton. The parser, `Process`/`render`/`serialize`, and error
+formatting work and are covered by a test suite; no CLI yet, and parsing
+real `ps -ef --forest` / `pstree -p` output directly isn't supported.
 
 ## License
 

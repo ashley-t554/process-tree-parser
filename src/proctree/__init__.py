@@ -1,6 +1,6 @@
 from .errors import ParseError, ProcessTreeError
 from .parser import parse, parse_file
-from .tree import Process, render
+from .tree import Process, render, serialize
 
 __version__ = "0.1.0"
 
@@ -11,4 +11,5 @@ __all__ = [
     "parse",
     "parse_file",
     "render",
+    "serialize",
 ]

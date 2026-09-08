@@ -1,6 +1,6 @@
 import unittest
 
-from proctree import parse, render
+from proctree import parse, render, serialize
 
 
 class ProcessWalkTests(unittest.TestCase):
@@ -43,6 +43,46 @@ class RenderTests(unittest.TestCase):
     def test_render_single_node(self):
         roots = parse("1 init\n")
         self.assertEqual(render(roots), "1 init")
+
+
+class SerializeTests(unittest.TestCase):
+    def test_serialize_matches_default_two_space_indent(self):
+        text = "1 init\n  100 sshd\n    142 bash\n  120 cron\n"
+        roots = parse(text)
+        self.assertEqual(
+            serialize(roots),
+            "1 init\n  100 sshd\n    142 bash\n  120 cron",
+        )
+
+    def test_serialize_respects_indent_argument(self):
+        roots = parse("1 init\n  100 sshd\n")
+        self.assertEqual(serialize(roots, indent=4), "1 init\n    100 sshd")
+
+    def test_serialize_multiple_roots(self):
+        roots = parse("1 init\n2 kthreadd\n")
+        self.assertEqual(serialize(roots), "1 init\n2 kthreadd")
+
+    def test_round_trip_preserves_tree_shape(self):
+        text = (
+            "1 init\n"
+            "  100 sshd\n"
+            "    142 sshd: alice [priv]\n"
+            "      143 bash\n"
+            "  120 cron\n"
+            "    121 sh -c backup.sh\n"
+        )
+        original = parse(text)
+        round_tripped = parse(serialize(original))
+
+        original_shape = [(p.pid, p.name, p.line) for p in original[0].walk()]
+        round_tripped_shape = [(p.pid, p.name) for p in round_tripped[0].walk()]
+
+        self.assertEqual(
+            [(pid, name) for pid, name, _ in original_shape], round_tripped_shape
+        )
+        # re-parsing renumbers `line` to match the serialized text, not the
+        # original source
+        self.assertEqual([p.line for p in round_tripped[0].walk()], [1, 2, 3, 4])
 
 
 if __name__ == "__main__":

@@ -62,3 +62,23 @@ def render(roots: list[Process]) -> str:
         walk(root, "", index == len(roots) - 1, True)
 
     return "\n".join(lines)
+
+
+def serialize(roots: list[Process], indent: int = 2) -> str:
+    """Render a forest of processes back into the indented text format
+    accepted by `parse`, so `parse(serialize(parse(text)))` reproduces the
+    same tree (though not necessarily the original whitespace or comments).
+
+    `indent` is the number of spaces added per nesting level.
+    """
+    lines: list[str] = []
+
+    def walk(node: Process, depth: int) -> None:
+        lines.append(f"{' ' * (depth * indent)}{node.pid} {node.name}")
+        for child in node.children:
+            walk(child, depth + 1)
+
+    for root in roots:
+        walk(root, 0)
+
+    return "\n".join(lines)
