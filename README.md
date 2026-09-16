@@ -108,6 +108,28 @@ Every `ParseError` carries `.message`, `.line`, `.column`, and
 `.source_line` individually too, in case a caller wants to fold the
 position into its own error format rather than print proctree's.
 
+## Parsing real `ps -ef` output
+
+`parse_ps_forest` reads `ps -ef` output directly, with or without
+`--forest`, so you can turn a real process dump into a fixture (or just
+inspect it) without hand-converting it to the text notation above:
+
+```python
+from proctree import parse_ps_forest
+
+# output of `ps -ef --forest`, or plain `ps -ef` -- both work, since the
+# tree is built from the PID/PPID columns, not from --forest's indentation
+roots = parse_ps_forest(ps_output)
+```
+
+Column positions are read from the header line, so `ps -eo pid,ppid,comm`
+and similar work too, as long as the output has PID, PPID, and a trailing
+CMD or COMMAND column. Line order in the input doesn't matter either --
+parentage comes entirely from PID/PPID, not from where a line appears
+relative to its parent.
+
+`parse_ps_forest_file(path)` reads a file the same way `parse_file` does.
+
 ## Format
 
 - Each non-blank, non-comment line is `<pid> <name>`.
@@ -129,9 +151,10 @@ python -m unittest discover -s tests
 
 ## Status
 
-Early skeleton. The parser, `Process`/`render`/`serialize`, and error
-formatting work and are covered by a test suite; no CLI yet, and parsing
-real `ps -ef --forest` / `pstree -p` output directly isn't supported.
+Early skeleton. The parser, `Process`/`render`/`serialize`, error
+formatting, and `parse_ps_forest` for real `ps -ef` / `ps -ef --forest`
+output all work and are covered by a test suite; no CLI yet, and
+`pstree -p`'s box-drawing output isn't supported.
 
 ## License
 
