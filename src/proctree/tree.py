@@ -36,6 +36,27 @@ class Process:
             yield node
             node = node.parent
 
+    def depth(self) -> int:
+        """Return how many ancestors this process has; a root is 0."""
+        return sum(1 for _ in self.ancestors())
+
+    def siblings(self):
+        """Yield the other children of this process's parent, in order.
+
+        A root has no `parent` to derive siblings from, even if it was
+        parsed alongside other roots in the same forest, so this yields
+        nothing for a root.
+        """
+        if self.parent is None:
+            return
+        for sibling in self.parent.children:
+            if sibling is not self:
+                yield sibling
+
+    def subtree_size(self) -> int:
+        """Return the number of processes in this subtree, including self."""
+        return sum(1 for _ in self.walk())
+
 
 def render(roots: list[Process]) -> str:
     """Render a forest of processes as an ASCII tree, e.g.:

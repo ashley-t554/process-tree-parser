@@ -23,6 +23,24 @@ class ProcessWalkTests(unittest.TestCase):
         self.assertEqual(list(self.bash.ancestors()), [self.sshd, self.init])
         self.assertEqual(list(self.init.ancestors()), [])
 
+    def test_depth_counts_ancestors(self):
+        self.assertEqual(self.init.depth(), 0)
+        self.assertEqual(self.sshd.depth(), 1)
+        self.assertEqual(self.bash.depth(), 2)
+
+    def test_siblings_excludes_self_and_preserves_order(self):
+        self.assertEqual(list(self.sshd.siblings()), [self.cron])
+        self.assertEqual(list(self.cron.siblings()), [self.sshd])
+        self.assertEqual(list(self.bash.siblings()), [])
+
+    def test_siblings_of_a_root_is_empty(self):
+        self.assertEqual(list(self.init.siblings()), [])
+
+    def test_subtree_size_includes_self_and_all_descendants(self):
+        self.assertEqual(self.init.subtree_size(), 4)
+        self.assertEqual(self.sshd.subtree_size(), 2)
+        self.assertEqual(self.bash.subtree_size(), 1)
+
 
 class RenderTests(unittest.TestCase):
     def test_render_matches_readme_example(self):

@@ -48,6 +48,9 @@ print([c.pid for c in init.children])   # [100, 120]
 
 bash = init.find(142)
 print([p.pid for p in bash.ancestors()])  # [100, 1]
+print(bash.depth())                       # 2
+print(bash.subtree_size())                # 1
+print([p.pid for p in bash.parent.siblings()])  # [120], sshd's sibling cron
 
 print(render(roots))
 ```
